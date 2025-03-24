@@ -11,6 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score, recall_score, f1_score
 import pandas as pd
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -19,6 +21,9 @@ app = FastAPI()
 def read_root():
    return {"Hello": "World"}
 
+@app.get("/web")
+def get_web():
+    return FileResponse("static/index.html")
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Optional[str] = None):

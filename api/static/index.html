@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Clasificador de noticias</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+  
+    h1 {
+      color: #2c3e50;
+    }
+  
+    label {
+      font-weight: bold;
+    }
+  
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+    button:hover {
+      background-color: #2980b9;
+    }
+  
+    .resultado-container {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border-left: 5px solid #3498db;
+      border-radius: 5px;
+    }
+  
+    .prediccion {
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+  
+    .probabilidad {
+      color: #2c3e50;
+      font-weight: bold;
+    }
+  </style>
+  
+</head>
+
+<body>
+
+  <h1>Clasificador de noticias</h1>
+
+  <form id="formulario">
+    <label for="titulo">Título:</label><br>
+    <input type="text" id="titulo" required><br><br>
+
+    <label for="descripcion">Descripción:</label><br>
+    <textarea id="descripcion" rows="4" cols="40" required></textarea><br><br>
+
+    <button type="submit">Predecir noticia</button>
+  </form>
+
+  <h2>Resultado:</h2>
+  <div id="resultado" class="resultado-container"></div>
+
+  <script>
+    const form = document.getElementById("formulario");
+    const resultado = document.getElementById("resultado");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = [{
+        Titulo: document.getElementById("titulo").value,
+        Descripcion: document.getElementById("descripcion").value
+      }];
+
+      try {
+        const response = await fetch("http://localhost:8000/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error("Error en la predicción");
+
+        const res = await response.json();
+        const pred = res[0].prediction;
+        const prob = (res[0].probability*100).toFixed(2);
+
+        resultado.innerHTML = `
+      <div class="prediccion"> <strong>Predicción:</strong> ${pred}</div>
+      <div class="probabilidad"> <strong>Probabilidad:</strong> ${prob}%</div>
+    `;
+      } catch (error) {
+        resultado.textContent = "Hubo un error al procesar la predicción.";
+        console.error(error);
+      }
+    });
+  </script>
+
+</body>
+
+</html>
