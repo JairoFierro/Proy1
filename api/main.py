@@ -1,10 +1,8 @@
 from datetime import datetime  
 import traceback
 from typing import Optional,List
-
 from fastapi import FastAPI
 from fastapi import UploadFile, File
-
 from joblib import load,dump
 from fastapi import HTTPException
 from message import Message,TrainingInstance
@@ -17,12 +15,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sklearn.metrics import accuracy_score, classification_report
-
 from joblib import load
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-
-
 from fastapi import UploadFile, File, HTTPException
 from typing import List
 import pandas as pd
@@ -34,7 +29,6 @@ from sklearn.metrics import accuracy_score, classification_report
 from joblib import dump, load
 from scipy.sparse import vstack
 from datetime import datetime
-
 from scipy.sparse import vstack
 import numpy as np
 from joblib import dump, load
@@ -45,9 +39,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # O reemplaza "*" por ["http://127.0.0.1:5500"] si sirves el HTML desde ahí
+    allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"],  # Muy importante para permitir OPTIONS, POST, etc.
+    allow_methods=["*"], 
     allow_headers=["*"],
 )
 
@@ -75,29 +69,13 @@ def make_predictions(messages: List[Message]):
     textos_combinados = [m.Titulo + " " + m.Descripcion for m in messages]
     X=vectorizer.transform(textos_combinados)
 
-    # df = pd.DataFrame({"combined_text": textos_combinados})
-    # print(df)
-
-    # model = load("model.joblib")
-
-    # X = df["combined_text"]  # Solo la columna que espera el vectorizador
     predictions = model.predict(X)
     probabilities = model.predict_proba(X)
-
-    # response = []
-    # for pred, prob in zip(predictions, probabilities):
-    #     print(prob)
-    #     response.append({
-    #         "prediction": int(pred),
-    #         "probability": float(max(prob))
-    #     })
-
-    # return response
 
     return [{
         "prediction": int(pred),
         "probability": float(max(prob)),
-        "probabilities": {  # Opcional: mostrar todas las probabilidades
+        "probabilities": {  
             str(i): float(prob[i]) for i in range(len(prob))
         }
     } for pred, prob in zip(predictions, probabilities)]
