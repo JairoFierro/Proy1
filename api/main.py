@@ -108,7 +108,7 @@ async def reentrenamiento(data: List[TrainingInstance]):
         try:
             vectorizer, old_model = load("model.joblib")
             X_old, y_old = load("historical_data.joblib")
-            y_old = np.array(y_old)  # Asegurar que es numpy array
+            y_old = np.array(y_old)  
         except FileNotFoundError:
             vectorizer = TfidfVectorizer()
             X_old, y_old = None, None
