@@ -1,322 +1,503 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reentrenamiento de Modelo</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        .section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #3498db;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin: 15px 0 5px;
-            color: #7f8c8d;
-            font-weight: bold;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        #result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            border-left: 5px solid #3498db;
-            display: none;
-        }
-        .result-item {
-            margin-bottom: 10px;
-        }
-        .result-label {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .error {
-            color: #e74c3c;
-            margin-top: 10px;
-        }
-        .success {
-            color: #27ae60;
-        }
-        .multiple-entries {
-            margin-top: 20px;
-        }
-        .entry {
-            border: 1px solid #eee;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .add-entry {
-            background-color: #2ecc71;
-            margin-top: 10px;
-        }
-        .add-entry:hover {
-            background-color: #27ae60;
-        }
-        .remove-entry {
-            background-color: #e74c3c;
-            margin-top: 5px;
-        }
-        .remove-entry:hover {
-            background-color: #c0392b;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+      }
+      .section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      h2 {
+        color: #3498db;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      label {
+        display: block;
+        margin: 15px 0 5px;
+        color: #7f8c8d;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+      button {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        width: 100%;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      #result {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        border-left: 5px solid #3498db;
+        display: none;
+      }
+      .result-item {
+        margin-bottom: 10px;
+      }
+      .result-label {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      .error {
+        color: #e74c3c;
+        margin-top: 10px;
+      }
+      .success {
+        color: #27ae60;
+      }
+      .multiple-entries {
+        margin-top: 20px;
+      }
+      .entry {
+        border: 1px solid #eee;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .add-entry {
+        background-color: #2ecc71;
+        margin-top: 10px;
+      }
+      .add-entry:hover {
+        background-color: #27ae60;
+      }
+      .remove-entry {
+        background-color: #e74c3c;
+        margin-top: 5px;
+      }
+      .remove-entry:hover {
+        background-color: #c0392b;
+      }
+      .file-requirements {
+        color: #7f8c8d;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+      }
+      .upload-btn {
+        background-color: #9b59b6;
+      }
+      .upload-btn:hover {
+        background-color: #8e44ad;
+      }
+      .progress-bar {
+        height: 5px;
+        background-color: #3498db;
+        width: 0%;
+        margin-top: 10px;
+        border-radius: 2px;
+        transition: width 0.3s;
+      }
+      #fileName {
+        margin-top: 5px;
+        font-style: italic;
+        color: #7f8c8d;
+      }
     </style>
 </head>
 <body>
     <h1>Reentrenamiento del Modelo de Clasificación</h1>
-    
+
     <div class="section">
-        <h2>Agregar Nuevos Datos</h2>
-        
-        <div id="manualForm">
-            <div id="entries-container">
-                <div class="entry">
-                    <label for="titulo1">Título:</label>
-                    <input type="text" id="titulo1" name="titulo" required>
-                    
-                    <label for="descripcion1">Descripción:</label>
-                    <textarea id="descripcion1" name="descripcion" required></textarea>
-                    
-                    <label for="etiqueta1">Etiqueta:</label>
-                    <select id="etiqueta1" name="etiqueta" required>
-                        <option value="1">Verdadero (1)</option>
-                        <option value="0">Falso (0)</option>
-                    </select>
-                </div>
-            </div>
-            
-            <button type="button" class="add-entry" onclick="addEntry()">+ Agregar Otra Entrada</button>
-            <button type="button" class="remove-entry" onclick="removeEntry()">- Eliminar Última Entrada</button>
-            <button type="button" onclick="submitTrainingData()" id="submit-btn">Reentrenar Modelo</button>
-                </div>
+      <h2>Cargar Datos desde CSV</h2>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <label for="csvFile">Selecciona un archivo CSV:</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv" required />
+        <div id="fileName">Ningún archivo seleccionado</div>
+        <div class="file-requirements">
+          <small>El archivo debe usar punto y coma (;) como delimitador y contener columnas: Titulo;Descripcion;Etiqueta</small>
+        </div>
+        <button type="submit" class="upload-btn">Cargar y Reentrenar</button>
+        <div class="progress-bar" id="progressBar"></div>
+      </form>
     </div>
-    
+
+    <div class="section">
+      <h2>Agregar Nuevos Datos Manualmente</h2>
+      <div id="manualForm">
+        <div id="entries-container">
+          <div class="entry">
+            <label for="titulo1">Título:</label>
+            <input type="text" id="titulo1" name="titulo" required />
+
+            <label for="descripcion1">Descripción:</label>
+            <textarea id="descripcion1" name="descripcion" required></textarea>
+
+            <label for="etiqueta1">Etiqueta:</label>
+            <select id="etiqueta1" name="etiqueta" required>
+              <option value="1">Verdadero (1)</option>
+              <option value="0">Falso (0)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" class="add-entry" onclick="addEntry()">
+          + Agregar Otra Entrada
+        </button>
+        <button type="button" class="remove-entry" onclick="removeEntry()">
+          - Eliminar Última Entrada
+        </button>
+        <button type="button" onclick="submitTrainingData()" id="submit-btn">
+          Reentrenar Modelo
+        </button>
+      </div>
+    </div>
+
     <div id="result" class="section">
-        <h2>Resultados del Reentrenamiento</h2>
-        <div class="result-item">
-            <span class="result-label">Estado:</span> <span id="status"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Muestras totales:</span> <span id="total-samples"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Nuevas muestras:</span> <span id="new-samples"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Distribución de clases:</span> <span id="class-distribution"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Exactitud (Accuracy):</span> <span id="accuracy-metric"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Precisión:</span> <span id="precision"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Recall:</span> <span id="recall"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">F1 Score:</span> <span id="f1-score"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Tipo de modelo:</span> <span id="model-type"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Características:</span> <span id="features"></span>
-        </div>
-        <div class="result-item">
-            <span class="result-label">Último entrenamiento:</span> <span id="last-trained"></span>
-        </div>
+      <h2>Resultados del Reentrenamiento</h2>
+      <div class="result-item">
+        <span class="result-label">Estado:</span> <span id="status"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Muestras totales:</span>
+        <span id="total-samples"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Nuevas muestras:</span>
+        <span id="new-samples"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Distribución de clases:</span>
+        <span id="class-distribution"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Exactitud (Accuracy):</span>
+        <span id="accuracy-metric"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Precisión:</span>
+        <span id="precision"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Recall:</span> <span id="recall"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">F1 Score:</span> <span id="f1-score"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Tipo de modelo:</span>
+        <span id="model-type"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Características:</span>
+        <span id="features"></span>
+      </div>
+      <div class="result-item">
+        <span class="result-label">Último entrenamiento:</span>
+        <span id="last-trained"></span>
+      </div>
     </div>
 
     <script>
-        let entryCount = 1;
-        
-        function resetForm() {
-            entryCount = 1;
-            const container = document.getElementById('entries-container');
-            container.innerHTML = `
-                <div class="entry">
-                    <label for="titulo1">Título:</label>
-                    <input type="text" id="titulo1" name="titulo" required>
-                    
-                    <label for="descripcion1">Descripción:</label>
-                    <textarea id="descripcion1" name="descripcion" required></textarea>
-                    
-                    <label for="etiqueta1">Etiqueta:</label>
-                    <select id="etiqueta1" name="etiqueta" required>
-                        <option value="1">Verdadero (1)</option>
-                        <option value="0">Falso (0)</option>
-                    </select>
-                </div>
-            `;
-        }
-        
-        function addEntry() {
-            entryCount++;
-            const container = document.getElementById('entries-container');
-            const newEntry = document.createElement('div');
-            newEntry.className = 'entry';
-            newEntry.innerHTML = `
-                <label for="titulo${entryCount}">Título:</label>
-                <input type="text" id="titulo${entryCount}" name="titulo" required>
-                
-                <label for="descripcion${entryCount}">Descripción:</label>
-                <textarea id="descripcion${entryCount}" name="descripcion" required></textarea>
-                
-                <label for="etiqueta${entryCount}">Etiqueta:</label>
-                <select id="etiqueta${entryCount}" name="etiqueta" required>
-                    <option value="1">Verdadero (1)</option>
-                    <option value="0">Falso (0)</option>
-                </select>
-            `;
-            container.appendChild(newEntry);
-        }
-        
-        function removeEntry() {
-            if (entryCount > 1) {
-                const container = document.getElementById('entries-container');
-                container.removeChild(container.lastChild);
-                entryCount--;
-            }
-        }
-        
-        async function submitTrainingData() {
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.textContent = 'Procesando...';
-        
-            const trainingData = [];
-            
-            for (let i = 1; i <= entryCount; i++) {
-                const titulo = document.getElementById(`titulo${i}`).value;
-                const descripcion = document.getElementById(`descripcion${i}`).value;
-                const etiqueta = parseInt(document.getElementById(`etiqueta${i}`).value);
-                
-                if (!titulo || !descripcion) {
-                    alert(`Por favor complete todos los campos en la entrada ${i}`);
-                    btn.disabled = false;
-                    btn.textContent = 'Reentrenar Modelo';
-                    return;
-                }
-                
-                trainingData.push({
-                    Titulo: titulo,
-                    Descripcion: descripcion,
-                    Etiqueta: etiqueta
-                });
-            }
-            
-            try {
-                const response = await fetch('/retrain', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(trainingData)
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Error en el reentrenamiento');
-                }
-                
-                const result = await response.json();
-                displayResults(result);
-                
-                if (result.status === 'success') {
-                    resetForm();
-                }
-                
-            } catch (error) {
-                const errorMsg = error.message || 'Error en el servidor';
-                safeSetContent('status', 'Error: ' + errorMsg);
-                document.getElementById('status').className = 'error';
-                const resultSection = document.getElementById('result');
-                if (resultSection) resultSection.style.display = 'block';
-            }
-            finally {
-                btn.disabled = false;
-                btn.textContent = 'Reentrenar Modelo';
-            }
-        }
-        
-        function displayResults(result) {
-            function safeSetContent(id, content) {
-                const element = document.getElementById(id);
-                if (element) element.textContent = content;
-            }
-    
-            if (!result) {
-                console.error("No hay resultados");
-                return;
-            }
-            
-            safeSetContent('status', result.status || '');
-            document.getElementById('status').className = result.status === 'success' ? 'success' : 'error';
-            
-            safeSetContent('total-samples', result.samples?.total || '');
-            safeSetContent('new-samples', result.samples?.new_added || '');
-            safeSetContent('class-distribution', result.samples?.class_distribution ? JSON.stringify(result.samples.class_distribution) : '');
-            
-            safeSetContent('accuracy-metric', result.metrics?.accuracy || '');
-            safeSetContent('precision', result.metrics?.precision || '');
-            safeSetContent('recall', result.metrics?.recall || '');
-            safeSetContent('f1-score', result.metrics?.f1_score || '');
-            
-            safeSetContent('model-type', result.details?.model_type || '');
-            safeSetContent('features', result.details?.features || '');
-            safeSetContent('last-trained', result.details?.last_trained || '');
-    
-            const resultSection = document.getElementById('result');
-            if (resultSection) resultSection.style.display = 'block';
-        }
+      let entryCount = 1;
+
+      // Mostrar nombre de archivo seleccionado
+      document.getElementById('csvFile').addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          document.getElementById('fileName').textContent = file ? file.name : 'Ningún archivo seleccionado';
+      });
+
+      // Función para manejar la carga de CSV
+      document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+
+          const fileInput = document.getElementById('csvFile');
+          const file = fileInput.files[0];
+          
+          if (!file) {
+              alert('Por favor selecciona un archivo CSV');
+              return;
+          }
+
+          if (!file.name.endsWith('.csv')) {
+              alert('El archivo debe tener extensión .csv');
+              return;
+          }
+
+          const btn = document.querySelector('#uploadForm button');
+          btn.disabled = true;
+          btn.textContent = 'Procesando CSV...';
+          document.getElementById('progressBar').style.width = '0%';
+
+          try {
+              // Leer el archivo CSV
+              const csvData = await readCSV(file);
+              
+              // Validar estructura del CSV
+              if (!validateCSV(csvData)) {
+                  throw new Error('El CSV no tiene el formato correcto. Debe contener: Titulo;Descripcion;Etiqueta');
+              }
+
+              // Convertir a formato de entrenamiento
+              const trainingData = csvData.map(row => ({
+                  Titulo: row.Titulo || '',
+                  Descripcion: row.Descripcion || '',
+                  Etiqueta: parseInt(row.Etiqueta || '0')
+              }));
+
+              // Simular progreso
+              simulateProgress();
+              
+              // Enviar para reentrenamiento
+              await submitTrainingData(trainingData);
+
+          } catch (error) {
+              alert('Error: ' + error.message);
+              console.error(error);
+          } finally {
+              btn.disabled = false;
+              btn.textContent = 'Cargar y Reentrenar';
+              document.getElementById('progressBar').style.width = '0%';
+          }
+      });
+
+      function simulateProgress() {
+          let width = 0;
+          const progressBar = document.getElementById('progressBar');
+          const interval = setInterval(() => {
+              if (width >= 100) {
+                  clearInterval(interval);
+              } else {
+                  width += 10;
+                  progressBar.style.width = width + '%';
+              }
+          }, 300);
+      }
+
+      // Función para leer archivo CSV con delimitador ;
+      function readCSV(file) {
+          return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              
+              reader.onload = function(event) {
+                  try {
+                      const csvText = event.target.result;
+                      const lines = csvText.split('\n');
+                      const headers = lines[0].split(';').map(h => h.trim());
+                      const result = [];
+                      
+                      for (let i = 1; i < lines.length; i++) {
+                          if (!lines[i].trim()) continue;
+                          
+                          const obj = {};
+                          // Manejo especial para campos que contengan ;
+                          const currentline = lines[i].match(/(".*?"|[^";]+)(?=\s*;|\s*$)/g) || [];
+                          
+                          for (let j = 0; j < headers.length; j++) {
+                              if (currentline[j]) {
+                                  // Eliminar comillas extras si existen
+                                  let value = currentline[j].trim();
+                                  if (value.startsWith('"') && value.endsWith('"')) {
+                                      value = value.slice(1, -1);
+                                  }
+                                  obj[headers[j]] = value;
+                              } else {
+                                  obj[headers[j]] = '';
+                              }
+                          }
+                          
+                          result.push(obj);
+                      }
+                      
+                      resolve(result);
+                  } catch (error) {
+                      reject(error);
+                  }
+              };
+              
+              reader.onerror = reject;
+              reader.readAsText(file);
+          });
+      }
+
+      // Función para validar estructura del CSV
+      function validateCSV(data) {
+          if (data.length === 0) return false;
+          
+          const firstRow = data[0];
+          const requiredColumns = ['Titulo', 'Descripcion', 'Etiqueta'];
+          return requiredColumns.every(col => col in firstRow);
+      }
+
+      function resetForm() {
+          entryCount = 1;
+          const container = document.getElementById('entries-container');
+          container.innerHTML = `
+              <div class="entry">
+                  <label for="titulo1">Título:</label>
+                  <input type="text" id="titulo1" name="titulo" required>
+                  
+                  <label for="descripcion1">Descripción:</label>
+                  <textarea id="descripcion1" name="descripcion" required></textarea>
+                  
+                  <label for="etiqueta1">Etiqueta:</label>
+                  <select id="etiqueta1" name="etiqueta" required>
+                      <option value="1">Verdadero (1)</option>
+                      <option value="0">Falso (0)</option>
+                  </select>
+              </div>
+          `;
+      }
+
+      function addEntry() {
+          entryCount++;
+          const container = document.getElementById('entries-container');
+          const newEntry = document.createElement('div');
+          newEntry.className = 'entry';
+          newEntry.innerHTML = `
+              <label for="titulo${entryCount}">Título:</label>
+              <input type="text" id="titulo${entryCount}" name="titulo" required>
+              
+              <label for="descripcion${entryCount}">Descripción:</label>
+              <textarea id="descripcion${entryCount}" name="descripcion" required></textarea>
+              
+              <label for="etiqueta${entryCount}">Etiqueta:</label>
+              <select id="etiqueta${entryCount}" name="etiqueta" required>
+                  <option value="1">Verdadero (1)</option>
+                  <option value="0">Falso (0)</option>
+              </select>
+          `;
+          container.appendChild(newEntry);
+      }
+
+      function removeEntry() {
+          if (entryCount > 1) {
+              const container = document.getElementById('entries-container');
+              container.removeChild(container.lastChild);
+              entryCount--;
+          }
+      }
+
+      async function submitTrainingData(trainingData = null) {
+          const btn = document.getElementById('submit-btn');
+          btn.disabled = true;
+          btn.textContent = 'Procesando...';
+
+          if (!trainingData) {
+              trainingData = [];
+              for (let i = 1; i <= entryCount; i++) {
+                  const titulo = document.getElementById(`titulo${i}`).value;
+                  const descripcion = document.getElementById(`descripcion${i}`).value;
+                  const etiqueta = parseInt(document.getElementById(`etiqueta${i}`).value);
+                  
+                  if (!titulo || !descripcion) {
+                      alert(`Por favor complete todos los campos en la entrada ${i}`);
+                      btn.disabled = false;
+                      btn.textContent = 'Reentrenar Modelo';
+                      return;
+                  }
+                  
+                  trainingData.push({
+                      Titulo: titulo,
+                      Descripcion: descripcion,
+                      Etiqueta: etiqueta
+                  });
+              }
+          }
+          
+          try {
+              const response = await fetch('/retrain', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(trainingData)
+              });
+              
+              if (!response.ok) {
+                  const error = await response.json();
+                  throw new Error(error.detail || 'Error en el reentrenamiento');
+              }
+              
+              const result = await response.json();
+              displayResults(result);
+              
+              if (result.status === 'success') {
+                  resetForm();
+              }
+              
+          } catch (error) {
+              const errorMsg = error.message || 'Error en el servidor';
+              safeSetContent('status', 'Error: ' + errorMsg);
+              document.getElementById('status').className = 'error';
+              const resultSection = document.getElementById('result');
+              if (resultSection) resultSection.style.display = 'block';
+          } finally {
+              btn.disabled = false;
+              btn.textContent = 'Reentrenar Modelo';
+          }
+      }
+
+      function displayResults(result) {
+          function safeSetContent(id, content) {
+              const element = document.getElementById(id);
+              if (element) element.textContent = content;
+          }
+
+          if (!result) {
+              console.error('No hay resultados');
+              return;
+          }
+          
+          safeSetContent('status', result.status || '');
+          document.getElementById('status').className = result.status === 'success' ? 'success' : 'error';
+          
+          safeSetContent('total-samples', result.samples?.total || '');
+          safeSetContent('new-samples', result.samples?.new_added || '');
+          safeSetContent('class-distribution', result.samples?.class_distribution ? JSON.stringify(result.samples.class_distribution) : '');
+          
+          safeSetContent('accuracy-metric', result.metrics?.accuracy || '');
+          safeSetContent('precision', result.metrics?.precision || '');
+          safeSetContent('recall', result.metrics?.recall || '');
+          safeSetContent('f1-score', result.metrics?.f1_score || '');
+          
+          safeSetContent('model-type', result.details?.model_type || '');
+          safeSetContent('features', result.details?.features || '');
+          safeSetContent('last-trained', result.details?.last_trained || '');
+
+          const resultSection = document.getElementById('result');
+          if (resultSection) resultSection.style.display = 'block';
+      }
     </script>
 </body>
 </html>

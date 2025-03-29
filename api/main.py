@@ -3,6 +3,7 @@ import traceback
 from typing import Optional,List
 
 from fastapi import FastAPI
+from fastapi import UploadFile, File
 
 from joblib import load,dump
 from fastapi import HTTPException
@@ -20,6 +21,19 @@ from sklearn.metrics import accuracy_score, classification_report
 from joblib import load
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+
+
+from fastapi import UploadFile, File, HTTPException
+from typing import List
+import pandas as pd
+from io import StringIO
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+from joblib import dump, load
+from scipy.sparse import vstack
+from datetime import datetime
 
 from scipy.sparse import vstack
 import numpy as np
@@ -91,20 +105,72 @@ def make_predictions(messages: List[Message]):
 
 def convert_numpy_types(obj):
     """Convierte tipos de NumPy a tipos nativos de Python para serialización JSON"""
-    if isinstance(obj, (np.integer, np.floating)):
-        return int(obj) if isinstance(obj, np.integer) else float(obj)
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
     elif isinstance(obj, dict):
-        return {key: convert_numpy_types(value) for key, value in obj.items()}
+        return {k: convert_numpy_types(v) for k, v in obj.items()}
     elif isinstance(obj, (list, tuple)):
         return [convert_numpy_types(item) for item in obj]
     return obj
 
+@app.post('/upload-csv')
+async def upload_csv(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        csv_data = StringIO(contents.decode('utf-8'))
+        
+        df = pd.read_csv(csv_data, sep=';', quotechar='"')
+        
+        df.columns = df.columns.str.lower().str.strip()
+        
+        required_columns = {'titulo', 'descripcion', 'etiqueta'}
+        
+        if not required_columns.issubset(df.columns):
+            raise HTTPException(
+                status_code=400,
+                detail=f"El CSV debe contener las columnas: {', '.join(required_columns)}"
+            )
+        
+        if not np.issubdtype(df['etiqueta'].dtype, np.number):
+            raise HTTPException(
+                status_code=400,
+                detail="La columna 'Etiqueta' debe contener valores numéricos (0 o 1)"
+            )
+        
+        training_data = []
+        for _, row in df.iterrows():
+            training_data.append({
+                "Titulo": str(row['titulo']),
+                "Descripcion": str(row['descripcion']),
+                "Etiqueta": int(row['etiqueta'])
+            })
+        
+        return {"data": training_data, "message": "CSV procesado correctamente"}
+    
+    except pd.errors.ParserError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error al parsear el CSV. Asegúrate de que usa punto y coma (;) como delimitador"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al procesar el CSV: {str(e)}"
+        )
 
 @app.post("/retrain")
 async def reentrenamiento(data: List[TrainingInstance]):
     try:
+        if not data:
+            raise HTTPException(
+                status_code=400,
+                detail="No se proporcionaron datos para entrenamiento"
+            )
+        
         try:
             vectorizer, old_model = load("model.joblib")
             X_old, y_old = load("historical_data.joblib")
@@ -115,6 +181,9 @@ async def reentrenamiento(data: List[TrainingInstance]):
 
         nuevos_textos = [f"{d.Titulo} {d.Descripcion}" for d in data]
         nuevas_etiquetas = np.array([d.Etiqueta for d in data])
+
+        if not all(np.isin(nuevas_etiquetas, [0, 1])):
+            raise ValueError("Las etiquetas deben ser 0 (falso) o 1 (verdadero)")
 
         if X_old is None:
             X_new = vectorizer.fit_transform(nuevos_textos)
@@ -134,12 +203,11 @@ async def reentrenamiento(data: List[TrainingInstance]):
         accuracy = float(accuracy_score(y_combined, y_pred)) 
         report = classification_report(y_combined, y_pred, output_dict=True)
         
-        # Convertir valores NumPy en el reporte
         report = convert_numpy_types(report)
 
         unique_classes, counts = np.unique(y_combined, return_counts=True)
         class_distribution = {
-            str(cls): int(count)  # Convertir a int
+            str(cls): int(count)
             for cls, count in zip(unique_classes, counts)
         }
 
@@ -166,5 +234,7 @@ async def reentrenamiento(data: List[TrainingInstance]):
             }
         }
 
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
