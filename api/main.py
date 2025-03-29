@@ -12,6 +12,9 @@ from typing import List
 
 import pandas as pd
 
+from joblib import load
+
+
 app = FastAPI()
 
 
@@ -33,7 +36,7 @@ def make_predictions(messages: List[Message]):
 
     model = load("model.joblib")
 
-    X = df["combined_text"]  # Solo la columna que espera el vectorizador
+    X = df["combined_text"]  
     predictions = model.predict(X)
     probabilities = model.predict_proba(X)
 
