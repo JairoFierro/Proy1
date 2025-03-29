@@ -13,8 +13,18 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 import pandas as pd
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # O reemplaza "*" por ["http://127.0.0.1:5500"] si sirves el HTML desde ahí
+    allow_credentials=True,
+    allow_methods=["*"],  # Muy importante para permitir OPTIONS, POST, etc.
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
